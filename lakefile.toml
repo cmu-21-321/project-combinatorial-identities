@@ -1,7 +1,7 @@
-name = "ProjectTemplate"
+name = "CombinatorialIdentities"
 version = "0.1.0"
 keywords = ["math"]
-defaultTargets = ["ProjectTemplate"]
+defaultTargets = ["CombinatorialIdentities"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
@@ -15,4 +15,4 @@ scope = "leanprover-community"
 rev = "v4.36.0-rc1"
 
 [[lean_lib]]
-name = "ProjectTemplate"
+name = "CombinatorialIdentities"
