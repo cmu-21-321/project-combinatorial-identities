@@ -69,6 +69,9 @@ theorem binomial_sum (n : ℕ) :
     rw[hstep, ih]
     ring
 
+
+section AMC10B_12
+
 /-
 https://artofproblemsolving.com/wiki/index.php?title=2024_AMC_10B_Problems/Problem_12
 Testing out current identities to formalize 2024 AMC10B #12
@@ -113,3 +116,34 @@ theorem AMC10B_12_different_language (A B : Finset ℕ)
     · exact hcard.symm
     · intro hba
       exact hne hba.symm
+
+variable (n k : ℕ)
+variable (f : Fin 100 → Finset (Fin n))
+variable (hcard : ∀ s, (f s).card = k)
+variable (hinj : Function.Injective f)
+
+include hcard hinj
+
+-- Dove into the Finset mathlib
+-- https://github.com/leanprover-community/mathlib4/tree/master/Mathlib/Data/Finset
+
+#check Finset.card_image_of_injective
+theorem AMC10B_12_counting_lowerbound : 100 ≤ Nat.choose n k := by
+  have hsetsize : --using Mathlib
+    ((Finset.univ : Finset (Fin n)).powersetCard k).card =
+    Nat.choose n k := by
+    simp
+  have hmember (s : Fin 100) :
+    f s ∈ (Finset.univ : Finset (Fin n)).powersetCard k := by
+    simp [Finset.mem_powersetCard, hcard s]
+  have himage : (Finset.univ.image f).card = 100 := by
+    rw [Finset.card_image_of_injective _ hinj]
+    simp
+  have hsubset : Finset.univ.image f ⊆
+    (Finset.univ : Finset (Fin n)).powersetCard k := by
+    intro h hI
+    rcases Finset.mem_image.mp hI with ⟨a, ha, rfl⟩
+    exact hmember a
+  sorry
+
+end AMC10B_12
