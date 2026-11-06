@@ -1,5 +1,6 @@
 import Mathlib
 
+--import Mathlib.Tactic.MinImports
 /-
 This project tries to explore binomial coefficients and classic
 combinatorial identities in lean
@@ -144,6 +145,81 @@ theorem AMC10B_12_counting_lowerbound : 100 ≤ Nat.choose n k := by
     intro h hI
     rcases Finset.mem_image.mp hI with ⟨a, ha, rfl⟩
     exact hmember a
-  sorry
+  have hle := Finset.card_le_card hsubset
+  rw[himage, hsetsize] at hle
+  exact hle
+
+theorem AMC10B_12_counting_upperbound : n ≤ 8 → Nat.choose n k < 100 := by
+  intro hn
+  by_cases hk : k ≤ n
+  · interval_cases n
+    all_goals interval_cases k
+    all_goals norm_num [Nat.choose]
+    -- Learned intervalcases and notation for the case work from below
+    -- https://leanprover-community.github.io/mathlib4_docs/Mathlib/Tactic/IntervalCases.html
+  · have hkn : n < k := by omega
+    simp [Nat.choose_eq_zero_of_lt hkn]
+
+-- finalizing proof
+#check AMC10B_12_counting_upperbound
+
+theorem AMC10B_12_finalizing : 9 ≤ n := by
+  by_contra h
+  have hn : n ≤ 8 := by
+    omega
+  have hlower : 100 ≤ Nat.choose n k := by
+    exact AMC10B_12_counting_lowerbound n k f hcard hinj
+  have hupper : Nat.choose n k < 100 := by
+    exact AMC10B_12_counting_upperbound n k f hcard hinj hn
+  omega
+
+
 
 end AMC10B_12
+
+section AMC10A_10
+
+/-
+Consider the following operation. Given a positive integer n, if n is a
+multiple of 3, then you replace n by n/3. If n is not a multiple of 3,
+then you replace n by n+10. Then continue this process. For example,
+beginning with n=4, this procedure gives 4,14,24,8,18,6,2,12...
+Suppose you start with n=100. What value results if you perform this operation
+exactly 100 times?
+
+We want to use recursion to solve
+-/
+
+
+-- Define operation
+def operation (n : ℕ) : ℕ :=
+  if n % 3 = 0 then n / 3 else n + 10
+
+def repeatOperation (n : ℕ) : ℕ → ℕ
+  | 0 => n
+  | k + 1 => operation (repeatOperation n k)
+
+#eval operation 100
+#eval operation 4
+#eval operation 14
+#eval repeatOperation 4 3
+
+theorem AMC10A_10_10to3 : repeatOperation 10 3 = 10 := by
+  sorry
+
+theorem AMC10A_10_repeating10s (m : ℕ) :
+  repeatOperation 10 (3 * m) = 10 := by
+  sorry
+
+theorem AMC10A_10_10_steps : repeatOperation 100 8 = 10 := by
+  sorry
+
+theorem AMC10A_10_finalizing : repeatOperation 100 100 = 20 := by
+  sorry
+
+
+
+
+end AMC10A_10
+
+--#min-imports
