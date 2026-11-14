@@ -222,4 +222,65 @@ theorem AMC10A_10_finalizing : repeatOperation 100 100 = 20 := by
 
 end AMC10A_10
 
+/-
+Rencontres Numbers and Fixed Points of Permutations R(n, k)
+The goal now is to move to a more general combinatorial identity not
+already available in Mathlib
+
+Mathlib has permuations, fixed points, derangements, but the LLM stated
+this identity is not given in the Mathlib library
+
+R(n, k) = (n choose k) * D(n - k), where D(m) is # of derangements of m elements
+
+
+-/
+section Rencontres
+
+def fixedPoints (n : ℕ) (p : Equiv.Perm (Fin n)) : Finset (Fin n) :=
+  Finset.univ.filter (fun i => p i = i)
+
+-- Defining R(n, k)
+-- counts permutations of Fin n with exactly k fixed points
+def rencontres (n k : ℕ) : ℕ := (Finset.univ.filter (fun p : Equiv.Perm (Fin n )
+   => (fixedPoints n p).card = k)).card
+
+-- Proving R(n, n) = 1
+theorem fixedPoints_all (n : ℕ) (p : Equiv.Perm (Fin n))
+    (h : (fixedPoints n p).card = n) :
+    p = Equiv.refl (Fin n) := by
+  apply Equiv.ext
+  intro i
+  simp only [Equiv.refl_apply]
+  have hsub : fixedPoints n p ⊆ Finset.univ := by
+    intro x hx
+    simp
+  have hcard : (Finset.univ : Finset (Fin n)).card ≤ (fixedPoints n p).card := by
+    simp [h]
+  have hall : fixedPoints n p = Finset.univ := by
+    exact Finset.eq_of_subset_of_card_le hsub hcard
+  have hi : i ∈ fixedPoints n p := by
+    rw [hall]
+    simp
+  simp only [fixedPoints, Finset.mem_filter, Finset.mem_univ, true_and] at hi
+  exact hi
+
+
+-- Main theorem: the number of permutations with exactly k fixed
+-- points equals the number of ways to choose those fixed points
+-- times the number of derangements of the remaining elements.
+-- This counting identity was not found in Mathlib from AI's inspection
+theorem rencontres_formula (n k : ℕ) (hk : k ≤ n) :
+    rencontres n k = Nat.choose n k * numDerangements (n - k) := by
+  sorry
+
+
+
+end Rencontres
+
+
+
+
+
+
+
 --#min-imports
