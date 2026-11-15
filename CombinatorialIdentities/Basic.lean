@@ -264,6 +264,20 @@ theorem fixedPoints_all (n : ℕ) (p : Equiv.Perm (Fin n))
   simp only [fixedPoints, Finset.mem_filter, Finset.mem_univ, true_and] at hi
   exact hi
 
+def permsWithFixedSet (n : ℕ) (S : Finset (Fin n)) :
+  Finset (Equiv.Perm (Fin n)) :=
+  Finset.univ.filter (fun p ↦ fixedPoints n p = S)
+
+theorem derangement_on_fixed_set_count (n : ℕ) (S : Finset (Fin n)) :
+  (permsWithFixedSet n S).card = numDerangements (n - S.card) := by
+  sorry
+
+theorem partition_rencontres (n k : ℕ) :
+  rencontres n k = ∑ S ∈ Finset.powersetCard k (Finset.univ : Finset (Fin n)),
+  (permsWithFixedSet n S).card := by
+  sorry
+
+
 
 -- Main theorem: the number of permutations with exactly k fixed
 -- points equals the number of ways to choose those fixed points
