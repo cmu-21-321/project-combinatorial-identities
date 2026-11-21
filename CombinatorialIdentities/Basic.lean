@@ -236,13 +236,17 @@ R(n, k) = (n choose k) * D(n - k), where D(m) is # of derangements of m elements
 -/
 section Rencontres
 
+-- Addressing TA feedback: use Mathlib's Function.fixedPoints
+-- I wasn't able to
 def fixedPoints (n : ℕ) (p : Equiv.Perm (Fin n)) : Finset (Fin n) :=
-  Finset.univ.filter (fun i => p i = i)
+  (Function.fixedPoints (p : Fin n → Fin n)).toFinset
 
 -- Defining R(n, k)
 -- counts permutations of Fin n with exactly k fixed points
-def rencontres (n k : ℕ) : ℕ := (Finset.univ.filter (fun p : Equiv.Perm (Fin n )
-   => (fixedPoints n p).card = k)).card
+-- used set-builder for readability
+def rencontres (n k : ℕ) : ℕ :=
+  ({p ∈ (Finset.univ : Finset (Equiv.Perm (Fin n))) |
+    (fixedPoints n p).card = k}).card
 
 -- Proving R(n, n) = 1
 theorem fixedPoints_all (n : ℕ) (p : Equiv.Perm (Fin n))
@@ -261,20 +265,90 @@ theorem fixedPoints_all (n : ℕ) (p : Equiv.Perm (Fin n))
   have hi : i ∈ fixedPoints n p := by
     rw [hall]
     simp
-  simp only [fixedPoints, Finset.mem_filter, Finset.mem_univ, true_and] at hi
-  exact hi
+  simpa only [fixedPoints, Set.mem_toFinset, Function.mem_fixedPoints_iff] using hi
+
+theorem rencontres_all_fixed (n : ℕ) : rencontres n n = 1 := by
+  unfold rencontres
+  have hset : {p ∈ (Finset.univ : Finset (Equiv.Perm (Fin n))) |
+    (fixedPoints n p).card = n} = {Equiv.refl (Fin n)} := by
+    ext p
+    simp only [Finset.mem_filter, Finset.mem_univ, true_and, Finset.mem_singleton]
+    constructor
+    · intro h
+      exact fixedPoints_all n p h
+    · intro h
+      subst p
+      have hall :
+          fixedPoints n (Equiv.refl (Fin n)) = Finset.univ := by
+        ext i
+        simp only [fixedPoints, Set.mem_toFinset,
+          Function.mem_fixedPoints_iff, Equiv.refl_apply,
+          Finset.mem_univ]
+      rw [hall]
+      exact Finset.card_fin n
+  rw [hset]
+  simp
+
 
 def permsWithFixedSet (n : ℕ) (S : Finset (Fin n)) :
   Finset (Equiv.Perm (Fin n)) :=
-  Finset.univ.filter (fun p ↦ fixedPoints n p = S)
+  {p ∈ Finset.univ | fixedPoints n p = S}
 
 theorem derangement_on_fixed_set_count (n : ℕ) (S : Finset (Fin n)) :
   (permsWithFixedSet n S).card = numDerangements (n - S.card) := by
-  sorry
+  classical
+  have hcomp : Fintype.card {x : Fin n // x ∈ Sᶜ} = n - S.card := by
+    rw [Fintype.card_coe, Finset.card_compl, Fintype.card_fin]
+  have hcondition (p : Equiv.Perm (Fin n)) :
+    (∀ x, ¬ (x ∈ Sᶜ) ↔ x ∈ Function.fixedPoints p) ↔ fixedPoints n p = S := by
+    simp only [Finset.mem_compl, not_not, fixedPoints,
+      Finset.ext_iff, Set.mem_toFinset]
+    constructor
+    · intro h x
+      exact (h x).symm
+    · intro h x
+      exact (h x).symm
+  -- found some mathlib work through AI for hcount
+  have hcount : Fintype.card (derangements {x : Fin n // x ∈ Sᶜ}) =
+    Fintype.card {p : Equiv.Perm (Fin n) // fixedPoints n p = S} := by
+    apply Fintype.card_congr
+    exact (derangements.subtypeEquiv (fun x : Fin n ↦ x ∈ Sᶜ)).trans
+      (Equiv.subtypeEquivRight hcondition)
+  have hderangements : Fintype.card (derangements {x : Fin n // x ∈ Sᶜ}) =
+    numDerangements (n - S.card) := by
+    rw [card_derangements_eq_numDerangements, hcomp]
+  have hperms :
+      Fintype.card {p : Equiv.Perm (Fin n) // fixedPoints n p = S} =
+        (permsWithFixedSet n S).card := by
+    apply Fintype.card_of_subtype
+    intro p
+    simp [permsWithFixedSet]
+  exact hperms.symm.trans (hcount.symm.trans hderangements)
+
 
 theorem partition_rencontres (n k : ℕ) :
   rencontres n k = ∑ S ∈ Finset.powersetCard k (Finset.univ : Finset (Fin n)),
   (permsWithFixedSet n S).card := by
+  classical
+
+  -- fixed point set belongs to powersetCard k when it has size k
+  have hmemk (p : Equiv.Perm (Fin n)) : fixedPoints n p ∈
+    Finset.powersetCard k (Finset.univ : Finset (Fin n)) ↔
+    (fixedPoints n p).card = k := by
+    sorry
+
+  -- count permutations of partition
+  /-
+  have hpermcount:= by
+    sorry
+
+  inside the count gives rencontres
+  have hcount := by
+    sorry
+
+  -/
+
+
   sorry
 
 
