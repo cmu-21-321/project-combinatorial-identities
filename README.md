@@ -1,26 +1,26 @@
-# CombinatorialIdentities
+# CombinatorialIdentities and Rencontres Numbers
 
-A template for Lean 4 projects that depend on [Mathlib](https://github.com/leanprover-community/mathlib4).
+For this project for 21-321, the main result is about formalizing identities 
+about Rencontres numbers. The main identity is about counting permutations of 
+n elements given k fixed points of the list. We formalize that this equals
+n choose k multiplied by the number of derangements of the remaining n - k
+elements.
 
-## Prerequisites
+## Files
 
-Install Lean via [elan](https://github.com/leanprover/elan) (see the
-[Lean installation guide](https://lean-lang.org/install/)). The correct Lean version is
-picked up automatically from `lean-toolchain`.
+1. 'CombinatorialIdentities/Basic.lean' contains the first few binomial 
+  identities explored before diving into Mathlib and visualizing the right
+  scope for this project (checkpoint 1 & 2)
+2. 'CombinatorialIdentities/AMC.lean' contains AMC level problems and the 
+  formalization of one of the questions (AMC10B #12). The skeleton for 
+  AMC10A #10 was sketched out, but after consulting with the TAs, decided to 
+  move towards a more general identity with more rigor, hence the AMC10A being
+  unfinished. (checkpoint 2 & 3)
+3. 'CombinatorialIdentities/Rencontres.lean' is the main file containig the 
+  formalization of the rencontres identity mentioned above. The supporting
+  theorems and lemmas are included with some definitions to build the 
+  foundation. (checkpoint 3, 4 & 5)
 
-## 1. Rename the project
-
-After creating your repository from this template, rename it from `ProjectTemplate` to your
-own project name:
-
-```bash
-./customize.sh MyProject
-```
-
-This updates `lakefile.toml`, `lake-manifest.json`, the Lean imports and this README's title, and
-renames `ProjectTemplate.lean` and `ProjectTemplate/` to `MyProject.lean` and `MyProject/`.
-The name must be a valid Lean module name (letters, digits and underscores, starting with a
-letter; UpperCamelCase is conventional). Commit the result, then delete `customize.sh`.
 
 ## 2. Get the Mathlib cache
 

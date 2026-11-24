@@ -1,1 +1,3 @@
 import CombinatorialIdentities.Basic
+import CombinatorialIdentities.AMC
+import CombinatorialIdentities.Rencontres
